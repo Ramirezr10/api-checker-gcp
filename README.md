@@ -49,6 +49,5 @@ Challenge: Manually SSHing to install Python packages is not scalable. Solution:
 Challenge: Encounted 403 Permission Denied despite correct IAM roles. Solution: Identified that GCE instances require the cloud-platform access scope to allow IAM roles to function fully. Updated the Terraform service_account block to include the correct scopes.
 
 🧹 Clean Up
-Bash
-
+```Bash
 terraform destroy -auto-approve
