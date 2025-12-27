@@ -1,0 +1,5 @@
+#python require libaries
+
+
+google-cloud-logging
+requests

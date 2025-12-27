@@ -26,10 +26,14 @@ resource "google_compute_instance" "vm_instance" {
   machine_type = "e2-micro"
   zone         = "${var.region}-a"
 
+  allow_stopping_for_update = true
+
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-cloud/ubuntu-22"
+      image = "ubuntu-os-cloud/ubuntu-2204-lts"
+      size  = 30
+      type  = "pd-standard"
     }
   }
 
@@ -40,5 +44,12 @@ resource "google_compute_instance" "vm_instance" {
     }
   }
 
-
+  service_account {
+    email = null
+    # This scope allows the VM to interact with all Google Cloud services 
+    # that the Service Account has IAM permissions for.
+    scopes = ["cloud-platform"]
+  }
 }
+
+

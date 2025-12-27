@@ -1,5 +1,5 @@
 import time
-import request
+import requests
 from google.cloud import logging
 
 
@@ -10,7 +10,7 @@ def monitor_site(url):
 	while True:
 		try:
 			response = request.get(url)
-			status = f"Site {url} is UP. Status: {reponse.status_code}"
+			status = f"Site {url} is UP. Status: {response.status_code}"
 			print(status)
 			logger.log_text(status, severity="INFO")
 
@@ -23,4 +23,4 @@ def monitor_site(url):
 		time.sleep(60) #Check every minute
 
 if __name__ == "__main__":
-	monitor_site(https://google.com)
+	monitor_site("https://google.com")
