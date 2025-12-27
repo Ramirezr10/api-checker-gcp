@@ -1,0 +1,4 @@
+# terraform.tfvars
+project_id  = "project-ce2811ca-f6d4-4767-842" # <--- Use your real ID here
+vm_name = "api_ops"                      # <--- Make sure this is unique
+region      = "us-central1"
