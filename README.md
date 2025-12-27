@@ -1,66 +1,54 @@
-GCP Website Health Monitor (Infrastructure-as-Code)
+GCP Website Health Monitor
 
-A cloud-native observability project that monitors website uptime using a Python agent deployed on a Google Compute Engine (GCE) instance. The project demonstrates full-stack SRE principles, including Infrastructure-as-Code (IaC), IAM security, and centralized logging.
+A cloud-native observability solution that monitors website uptime using a Python agent. This project demonstrates SRE (Site Reliability Engineering) principles, including Infrastructure-as-Code (IaC), automated bootstrapping, and centralized logging.
 
 🏗️ Architecture
 
-Infrastructure: Provisioned via Terraform (VPC, Firewall, Compute Engine).
+    Infrastructure: Fully automated via Terraform (VPC, Firewall, GCE).
 
-Compute: Ubuntu 22.04 LTS (e2-micro).
+    Compute: Ubuntu 22.04 LTS (e2-micro) running as a dedicated monitoring node.
 
-Monitoring Agent: Python 3 script using requests and google-cloud-logging.
+    Bootstrapping: Uses Cloud-Init (Startup Scripts) to automatically install dependencies and start the agent on boot.
 
-Observability: Real-time log streaming to GCP Logs Explorer.
+    Observability: Custom log streaming to GCP Cloud Logging for real-time heartbeats.
 
-🚀 Quick Start
+🚀 Features
 
-1. Provision Infrastructure
+    Zero-Touch Deployment: Terraform handles both the infrastructure and the initial script setup.
 
-On your local machine, navigate to the terraform directory:
+    Keyless Security: Uses Application Default Credentials (ADC) and IAM Service Account bindings—no JSON keys stored on the VM.
 
-terraform init
-terraform apply -auto-approve
+    Automated Lifecycle: Configured with allow_stopping_for_update for seamless IaC-driven instance management.
 
+🛠 Tech Stack
 
-2. Configure IAM Permissions
+    Cloud: Google Cloud Platform (GCP)
 
-Grant the VM's Service Account permission to write to Cloud Logging (Replace with your project details):
+    IaC: Terraform
 
-gcloud projects add-iam-policy-binding [PROJECT_ID] \
-  --member="serviceAccount:[PROJECT_NUMBER]-compute@developer.gserviceaccount.com" \
-  --role="roles/logging.logWriter"
+    Language: Python 3.10+
 
-
-3. Deploy & Run Agent
-
-SSH into the instance and start the monitoring service:
-
-# SSH into the VM
-gcloud compute ssh health-checker-vm
-
-# Setup environment and run
-cd monitor
-source venv/bin/activate
-python3 main.py
-
+    Security: IAM Roles & Service Accounts
 
 📊 Monitoring in GCP
 
-To view the heartbeats and status checks, go to GCP Logs Explorer and run:
+You don't need to manually check the VM. Simply go to GCP Logs Explorer and filter by:
+SQL
 
 logName:"logs/health-checker-logs"
 
+🧠 Key Technical Challenges Solved
+1. The "Manual IAM" Trap
 
-🛠️ Key Technical Challenges Solved
+Challenge: Initially required manual gcloud commands to grant logging permissions. Solution: Integrated the google_project_iam_member resource into Terraform. Now, the logging.logWriter role is applied automatically to the Service Account during terraform apply.
+2. Dependency Management at Scale
 
-IAM & API Scopes: Resolved 403 Permission Denied errors by aligning IAM Roles with GCE Access Scopes (cloud-platform).
+Challenge: Manually SSHing to install Python packages is not scalable. Solution: Implemented a Metadata Startup Script in Terraform. The VM now self-provisions its environment (venv, requests, google-cloud-logging) immediately upon creation.
+3. API Access Scopes
 
-Terraform Lifecycle: Managed sensitive VM updates using allow_stopping_for_update to automate infrastructure changes that require instance termination.
-
-Service Account Auth: Implemented "Application Default Credentials" (ADC) to allow the Python script to authenticate securely without hardcoded keys.
+Challenge: Encounted 403 Permission Denied despite correct IAM roles. Solution: Identified that GCE instances require the cloud-platform access scope to allow IAM roles to function fully. Updated the Terraform service_account block to include the correct scopes.
 
 🧹 Clean Up
-
-To remove all resources and avoid costs:
+Bash
 
 terraform destroy -auto-approve
